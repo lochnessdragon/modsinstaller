@@ -12,99 +12,100 @@ api_base="https://api.cfwidget.com/"
 curse_cdn_base="https://media.forgecdn.net/files/" #3706/700/create-mc1.18.1_v0.4f.jar
 
 def rreplace(s, old, new, occurrence):
-	li = s.rsplit(old, occurrence)
-	return new.join(li)
+        li = s.rsplit(old, occurrence)
+        return new.join(li)
 
 def downloadFile(url):
-	filename = url.split('/')[-1]
-	print("📝 Downloading: " + filename)
-	wget.download(url)
+        filename = url.split('/')[-1]
+        print("📝 Downloading: " + filename)
+        wget.download(url)
 
 def apiRequest(url):
-	for tries in range(0, 5):
-		response = requests.get(url)
-		if response.status_code == 202:
-			print("API is indexing page. Retrying request in 3 seconds.")
-			time.sleep(3)
-		else:
-			return response
+        for tries in range(0, 5):
+                response = requests.get(url)
+                if response.status_code == 202:
+                        print("API is indexing page. Retrying request in 3 seconds.")
+                        time.sleep(3)
+                else:
+                        return response
 
 def getProject(id, version = ""):
-	extras = "" if version == "" else "?version=" + version
-	response = apiRequest(api_base + str(id) + extras)
-	return response.status_code, response.json()
+        extras = "" if version == "" else "?version=" + version
+        response = apiRequest(api_base + str(id) + extras)
+        return response.status_code, response.json()
 
 def getUser(id):
-	if isinstance(id, int):
-		response = apiRequest(api_base + "author/" + str(id))
-	else:
-		response = apiRequest(api_base + "author/search/" + id)
-	return response.status_code, response.json()
+        if isinstance(id, int):
+                response = apiRequest(api_base + "author/" + str(id))
+        else:
+                response = apiRequest(api_base + "author/search/" + id)
+        return response.status_code, response.json()
 
 def extractAuthors(mod):
-	authorList = []
-	for member in mod['members']:
-		authorList.append(member['username'])
-		
-	authors = ', '.join(authorList)
-	if len(authorList) > 2:
-		return rreplace(authors, ',', ', and', 1)
-	else:
-		return rreplace(authors, ',', ' and', 1)
+        authorList = []
+        for member in mod['members']:
+                authorList.append(member['username'])
+
+        authors = ', '.join(authorList)
+        if len(authorList) > 2:
+                return rreplace(authors, ',', ', and', 1)
+        else:
+                return rreplace(authors, ',', ' and', 1)
 
 if __name__ == '__main__':
-	# Initializes Colorama
-	init(autoreset=True)
+        # Initializes Colorama
+        init(autoreset=True)
 
-	# parse argument
-	parser = argparse.ArgumentParser(description='Downloads a list of mods from curseforge.')
-	parser.add_argument('modlist', metavar='inputlist', nargs=1, type=str, help='the file to parse for mod ids. Can contain comments starting with #. Otherwise, should be a list of mod ids (ints), each on a new line')
-	parser.add_argument('--mc-version', metavar="version", type=str, default='1.18.1', help='the minecraft version to force the mods to conform to')
-	parser.add_argument('--force', action='store_true', help='forces the program to redownload any already detected files')
-	parser.add_argument('--output-folder', metavar="folder", help='the output folder to output the mods to', default='./')
+        # parse argument
+        parser = argparse.ArgumentParser(description='Downloads a list of mods from curseforge.')
+        parser.add_argument('modlist', metavar='inputlist', nargs=1, type=str, help='the file to parse for mod ids. Can contain comments starting with #. Otherwise, should be a list of mod ids (ints), each on a new line')
+        parser.add_argument('--mc-version', metavar="version", type=str, default='1.18.1', help='the minecraft version to force the mods to conform to')
+        parser.add_argument('--force', action='store_true', help='forces the program to redownload any already detected files')
+        parser.add_argument('--output-folder', metavar="folder", help='the output folder to output the mods to', default='./')
 
-	args = parser.parse_args()
-	print("Running modinstaller with arguments:")
-	print("Input file: " + str(args.modlist))
-	print("Force download: " + str(args.force))
-	print("MC Target: " + args.mc_version)
-	print("Output Folder: " + args.output_folder)
-	
-	modlist = []
-	with open(args.modlist[0]) as modFileList:
-		for line in modFileList.readlines():
-			line = re.sub(r'#.*', '', line).strip()
-			if(line.isdigit()):
-				modlist.append(int(line))
+        args = parser.parse_args()
+        print("Running modinstaller with arguments:")
+        print("Input file: " + str(args.modlist))
+        print("Force download: " + str(args.force))
+        print("MC Target: " + args.mc_version)
+        print("Output Folder: " + args.output_folder)
 
-	for modid in modlist:
-		print("🔍 Searching for mod: " + Fore.BLUE + str(modid))
-		status_code, mod = getProject(modid, version=args.mc_version)
-		if status_code == 200:
-			print("🟩  Found project: " + Fore.GREEN + mod['title'] + Fore.RESET + " by " + Fore.LIGHTYELLOW_EX + extractAuthors(mod))
-		else:
-			print("❌ Could not find mod: " + str(modid) + " Error: " + str(status_code) + " Skipping!")
-			continue
-		# now that we have the mod, we need to check the mc version and download the file
+        modlist = []
+        with open(args.modlist[0]) as modFileList:
+                for line in modFileList.readlines():
+                        line = re.sub(r'#.*', '', line).strip()
+                        if(line.isdigit()):
+                                modlist.append(int(line))
 
-		if(args.mc_version in mod['download']['versions']):
-			# we can safely download the mod if it doesn't exist already
-			if not os.path.exists(mod['download']['name']) or args.force:
-				#print(mod['download'])
-				file_id=mod['download']['url'].split('/')[-1]
-				#print(file_id, "A:", file_id[0:4], "B:", file_id[4:])
-			
-				file_url=curse_cdn_base + file_id[0:4] + "/" + file_id[4:] + "/" + mod['download']['name']
-				print("📂 Using url: " + Fore.MAGENTA + file_url)
-				#print(mod['download']['url']+ "/" + mod['download']['name'])
-				downloadFile(file_url)
-			else:
-					print("❗ File: " + Fore.MAGENTA + mod['download']['name'] + Fore.RESET + " already exists! " + Fore.YELLOW + "Skipping!")
-		else:
-			print("❌" + Fore.RED + mod['title'] + " does not have a version for minecraft " + mc_version)
-			continue
-		
-	
-	#print(json.dumps(getProject(328085, version=mc_version), indent=4))
+        for modid in modlist:
+                print("🔍 Searching for mod: " + Fore.BLUE + str(modid))
+                status_code, mod = getProject(modid, version=args.mc_version)
+                if status_code == 200:
+                        print("🟩  Found project: " + Fore.GREEN + mod['title'] + Fore.RESET + " by " + Fore.LIGHTYELLOW_EX + extractAuthors(mod))
+                else:
+                        print("❌ Could not find mod: " + str(modid) + " Error: " + str(status_code) + " Skipping!")
+                        continue
+                # now that we have the mod, we need to check the mc version and download the file
+                #print(json.dumps(mod, indent=4))
+                if(args.mc_version in mod['download']['versions'] and "Forge" in mod['download']['versions']):
+                        # we can safely download the mod if it doesn't exist already
+                        if not os.path.exists(mod['download']['name']) or args.force:
+                                #print(mod['download'])
+                                file_id=mod['download']['url'].split('/')[-1]
+                                #print(file_id, "A:", file_id[0:4], "B:", file_id[4:])
 
-	#parser = argparse.ArgumentParser(description="Auto downloader for curseforge mods")
+                                file_url=curse_cdn_base + str(int(file_id[0:4])) + "/" + str(int(file_id[4:])) + "/" + mod['download']['name']
+                                print("📂 Using url: " + Fore.MAGENTA + file_url)
+                                #print(mod['download']['url']+ "/" + mod['download']['name'])
+                                downloadFile(file_url)
+                        else:
+                                        print("❗ File: " + Fore.MAGENTA + mod['download']['name'] + Fore.RESET + " already exists! " + Fore.YELLOW + "Skipping!")
+                else:
+                        print("❌" + Fore.RED + mod['title'] + " does not have a version for minecraft " + args.mc_version)
+                        print(json.dumps(mod["files"], indent=4))
+                        continue
+
+
+        #print(json.dumps(getProject(328085, version=mc_version), indent=4))
+
+        #parser = argparse.ArgumentParser(description="Auto downloader for curseforge mods")
