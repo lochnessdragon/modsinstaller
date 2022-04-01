@@ -58,11 +58,13 @@ if __name__ == '__main__':
 
 	# parse argument
 	parser = argparse.ArgumentParser(description='Downloads a list of mods from curseforge.')
-	parser.add_argument('modfilelist', metavar='modlistfilename', type=str, nargs='?')
+	parser.add_argument('modlist', metavar='inputlist', nargs='?', type=argparse.FileType('r'), help='the file to parse for mod ids. Can contain comments starting with #. Otherwise, should be a list of mod ids (ints), each on a new line')
+	parser.add_argument('--mc-version', metavar="version", type=str, default='1.18.1', help='the minecraft version to force the mods to conform to')
+	parser.add_argument('--force', action='store_true', help='forces the program to redownload any already detected files')
+	parser.add_argument('--output-folder', metavar="folder", help='the output folder to output the mods to')
 
 	args = parser.parse_args()
-	print(args.modfilelist)
-
+	print(args)
 	exit()
 	
 	mc_version = "1.18.1"
