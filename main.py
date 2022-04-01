@@ -55,6 +55,15 @@ def extractAuthors(mod):
 if __name__ == '__main__':
 	# Initializes Colorama
 	init(autoreset=True)
+
+	# parse argument
+	parser = argparse.ArgumentParser(description='Downloads a list of mods from curseforge.')
+	parser.add_argument('modfilelist', metavar='modlistfilename', type=str, nargs='?')
+
+	args = parser.parse_args()
+	print(args.modfilelist)
+
+	exit()
 	
 	mc_version = "1.18.1"
 	
