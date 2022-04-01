@@ -58,27 +58,28 @@ if __name__ == '__main__':
 
 	# parse argument
 	parser = argparse.ArgumentParser(description='Downloads a list of mods from curseforge.')
-	parser.add_argument('modlist', metavar='inputlist', nargs='?', type=argparse.FileType('r'), help='the file to parse for mod ids. Can contain comments starting with #. Otherwise, should be a list of mod ids (ints), each on a new line')
+	parser.add_argument('modlist', metavar='inputlist', nargs=1, type=str, help='the file to parse for mod ids. Can contain comments starting with #. Otherwise, should be a list of mod ids (ints), each on a new line')
 	parser.add_argument('--mc-version', metavar="version", type=str, default='1.18.1', help='the minecraft version to force the mods to conform to')
 	parser.add_argument('--force', action='store_true', help='forces the program to redownload any already detected files')
-	parser.add_argument('--output-folder', metavar="folder", help='the output folder to output the mods to')
+	parser.add_argument('--output-folder', metavar="folder", help='the output folder to output the mods to', default='./')
 
 	args = parser.parse_args()
-	print(args)
-	exit()
-	
-	mc_version = "1.18.1"
+	print("Running modinstaller with arguments:")
+	print("Input file: " + str(args.modlist))
+	print("Force download: " + str(args.force))
+	print("MC Target: " + args.mc_version)
+	print("Output Folder: " + args.output_folder)
 	
 	modlist = []
-	with open("modlist.txt", "r") as modfilelist:
-		for line in modfilelist.readlines():
+	with open(args.modlist[0]) as modFileList:
+		for line in modFileList.readlines():
 			line = re.sub(r'#.*', '', line).strip()
 			if(line.isdigit()):
 				modlist.append(int(line))
 
 	for modid in modlist:
 		print("🔍 Searching for mod: " + Fore.BLUE + str(modid))
-		status_code, mod = getProject(modid, version=mc_version)
+		status_code, mod = getProject(modid, version=args.mc_version)
 		if status_code == 200:
 			print("🟩  Found project: " + Fore.GREEN + mod['title'] + Fore.RESET + " by " + Fore.LIGHTYELLOW_EX + extractAuthors(mod))
 		else:
@@ -86,9 +87,9 @@ if __name__ == '__main__':
 			continue
 		# now that we have the mod, we need to check the mc version and download the file
 
-		if(mc_version in mod['download']['versions']):
+		if(args.mc_version in mod['download']['versions']):
 			# we can safely download the mod if it doesn't exist already
-			if not os.path.exists(mod['download']['name']):
+			if not os.path.exists(mod['download']['name']) or args.force:
 				#print(mod['download'])
 				file_id=mod['download']['url'].split('/')[-1]
 				#print(file_id, "A:", file_id[0:4], "B:", file_id[4:])
