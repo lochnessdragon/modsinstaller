@@ -8,10 +8,10 @@ You can install the script simply by running this command on os's with curl inst
 
 ## Usage
 This project requires python3.
-YOu should also have the ```colorama```, ```requests``` and ```wget``` modules installed.
+You should also have the ```colorama```, ```requests``` and ```wget``` modules installed.
 
 ### Running the script:
-Use: ```python3 modsinstaller.py <modslist.txt>``` to run. (or whatever you've named the py script file)
+Use: ```python3 modsinstaller.py <modslist.txt>``` to run. (or whatever you've named the py script file) (also whatever python3 is named on your system)
 
 ```<modslist.txt>``` is a required argument, this is the list of mods by forge id that you want to install. 
 You can also comment out line in that file with "#"
