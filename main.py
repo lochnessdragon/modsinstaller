@@ -104,7 +104,8 @@ if __name__ == '__main__':
 	parser.add_argument('--mc-version', metavar="version", type=str, default='1.18.1', help='the minecraft version to force the mods to conform to')
 	parser.add_argument('--force', action='store_true', help='forces the program to redownload any already detected files')
 	parser.add_argument('--output-folder', metavar="folder", help='the output folder to output the mods to', default='./')
-
+	parser.add_argument('--check-upgrades', metavar="new_version", help='Instead of downloading mods, check if the current mods installed have a different version available', default='1.18.2', type=str)
+	
 	args = parser.parse_args()
 	print("Running modinstaller with arguments:")
 	print("Input file: " + str(args.modlist))
