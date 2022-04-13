@@ -1,1 +1,7 @@
-560323 # NBT Deadlock be gone
+mc_version=1.18.1
+client=Forge # or Fabric
+
+deps = {
+	curseforge = [560323] # NBT Deadlock be gone
+	modrinth = []
+}

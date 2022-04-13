@@ -1,6 +1,8 @@
 { pkgs }: {
   deps = [
     pkgs.python38Full
+		# needed for build system
+		pkgs.python38Packages.pip
   ];
   env = {
     PYTHON_LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [

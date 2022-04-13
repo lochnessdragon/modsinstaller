@@ -99,6 +99,11 @@ if __name__ == '__main__':
 	init(autoreset=True)
 
 	# parse argument
+	# main.py install
+	# 				check_updates
+	#					update
+	# 				zip_client
+	#         can_migrate (--version=1.18.2 or --)
 	parser = argparse.ArgumentParser(description='Downloads a list of mods from curseforge.')
 	parser.add_argument('modlist', metavar='inputlist', nargs=1, type=str, help='the file to parse for mod ids. Can contain comments starting with #. Otherwise, should be a list of mod ids (ints), each on a new line')
 	parser.add_argument('--mc-version', metavar="version", type=str, default='1.18.1', help='the minecraft version to force the mods to conform to')
